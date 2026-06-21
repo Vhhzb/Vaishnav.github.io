@@ -167,7 +167,7 @@
     /* ─ Pages ─ */
     .page {
       display: none;
-      padding: 64px 56px 100px;
+      padding: 64px 56px 100px 96px;
       max-width: 800px;
       position: relative;
       z-index: 1;
@@ -539,7 +539,7 @@
       .sidebar.open { transform: translateX(0); }
       .main { margin-left: 0; }
       .main::before { left: 0; }
-      .page { padding: 56px 24px 80px; }
+      .page { padding: 56px 24px 80px 24px; }
       .two-col { grid-template-columns: 1fr; }
     }
   </style>
@@ -649,7 +649,6 @@
         <div class="fact-label">Fav Drink</div>
       </div>
     </div>
-  </div>
 
     <hr class="home-divider"/>
 
@@ -658,7 +657,10 @@
 
       <!-- Ferrari — F1 -->
       <div class="team-tile">
-        <img src="https://upload.wikimedia.org/wikipedia/en/d/d7/Scuderia_Ferrari_HP_logo.svg" alt="Ferrari"/>
+        <img class="team-logo" 
+             src="https://logoeps.com/wp-content/uploads/2013/03/scuderia-ferrari-vector-logo.png"
+             data-wiki="https://upload.wikimedia.org/wikipedia/en/d/d7/Scuderia_Ferrari_HP_logo.svg"
+             alt="Ferrari" onerror="this.src='https://placehold.co/52x52/cc0000/FECC02?text=SF'"/>
         <div class="team-info">
           <div class="team-name">Ferrari</div>
           <div class="team-league">Formula 1</div>
@@ -667,7 +669,9 @@
 
       <!-- Chelsea — Premier League -->
       <div class="team-tile">
-        <img src="https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg" alt="Chelsea FC"/>
+        <img class="team-logo"
+             src="https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg"
+             alt="Chelsea FC" onerror="this.src='https://placehold.co/52x52/034694/daa520?text=CFC'"/>
         <div class="team-info">
           <div class="team-name">Chelsea</div>
           <div class="team-league">Premier League</div>
@@ -676,7 +680,9 @@
 
       <!-- Napoli — Serie A -->
       <div class="team-tile">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/SSC_Napoli_2007.svg" alt="Napoli"/>
+        <img class="team-logo"
+             src="https://upload.wikimedia.org/wikipedia/commons/2/2e/SSC_Napoli_2007.svg"
+             alt="Napoli" onerror="this.src='https://placehold.co/52x52/12A0C3/ffffff?text=N'"/>
         <div class="team-info">
           <div class="team-name">Napoli</div>
           <div class="team-league">Serie A</div>
@@ -685,7 +691,9 @@
 
       <!-- Dortmund — Bundesliga -->
       <div class="team-tile">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/67/Borussia_Dortmund_logo.svg" alt="Borussia Dortmund"/>
+        <img class="team-logo"
+             src="https://upload.wikimedia.org/wikipedia/commons/6/67/Borussia_Dortmund_logo.svg"
+             alt="Borussia Dortmund" onerror="this.src='https://placehold.co/52x52/FDE100/000000?text=BVB'"/>
         <div class="team-info">
           <div class="team-name">Dortmund</div>
           <div class="team-league">Bundesliga</div>
@@ -694,13 +702,14 @@
 
       <!-- Cadillac — WEC -->
       <div class="team-tile">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/Cadillac_logo.svg" alt="Cadillac Racing"/>
+        <img class="team-logo"
+             src="https://upload.wikimedia.org/wikipedia/commons/a/a7/Cadillac_logo.svg"
+             alt="Cadillac Racing" onerror="this.src='https://placehold.co/52x52/0a0a14/c8a227?text=CDL'"/>
         <div class="team-info">
           <div class="team-name">Cadillac</div>
           <div class="team-league">WEC</div>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -881,6 +890,38 @@
   // ── Hamburger ───────────────────────────────────────────────
   document.getElementById('hamburger').addEventListener('click', () => {
     document.getElementById('sidebar').classList.toggle('open');
+  });
+
+  // ── Logo loader: fetch SVGs via Wikipedia open API and embed inline ──
+  // This bypasses hotlink protection by fetching through Wikipedia's own CORS-open endpoint
+  const logoSources = [
+    { selector: 'img[alt="Ferrari"]',
+      wiki: 'Scuderia_Ferrari_HP_logo.svg',
+      fallbackColor: '#cc0000', fallbackBg: '#FECC02', fallbackText: 'SF' },
+    { selector: 'img[alt="Cadillac Racing"]',
+      wiki: 'Cadillac_logo.svg',
+      fallbackColor: '#c8a227', fallbackBg: '#0a0a14', fallbackText: 'CDL' },
+  ];
+
+  async function loadLogoViaAPI(source) {
+    try {
+      const res = await fetch(
+        `https://en.wikipedia.org/w/api.php?action=query&titles=File:${source.wiki}&prop=imageinfo&iiprop=url&format=json&origin=*`
+      );
+      const data = await res.json();
+      const pages = data.query.pages;
+      const page = pages[Object.keys(pages)[0]];
+      const url = page.imageinfo[0].url;
+      const img = document.querySelector(source.selector);
+      if (img) img.src = url;
+    } catch(e) {
+      // fallback already set via onerror on the img tag
+    }
+  }
+
+  // Run after page load
+  window.addEventListener('load', () => {
+    logoSources.forEach(loadLogoViaAPI);
   });
 </script>
 
