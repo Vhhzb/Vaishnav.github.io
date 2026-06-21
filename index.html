@@ -1,64 +1,335 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Vaishnav Sairam</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
-    /* ── EDIT GUIDE ────────────────────────────────────────────────
-       All your personal content is in the <body> below.
-       To change text: find the section and edit what's between the tags.
-       To change colors: edit the CSS variables in :root below.
-       To change fonts: swap the Google Fonts link above and update --font-*.
-    ─────────────────────────────────────────────────────────────── */
-
+    /* ════════════════════════════════════════════
+       TOKENS  — edit here to retheme everything
+    ════════════════════════════════════════════ */
     :root {
-      --bg:       #0e0f13;
-      --ink:      #e8eaf0;
-      --muted:    #6b7080;
-      --accent:   #4f8ef7;
-      --accent2:  #e0394a;
-      --rule:     #1f2230;
-      --font-display: 'DM Serif Display', Georgia, serif;
-      --font-body:    'DM Mono', 'Courier New', monospace;
+      --bg:         #0e0f13;
+      --surface:    #13151c;
+      --border:     #1e2130;
+      --ink:        #e8eaf0;
+      --muted:      #5a6080;
+      --soft:       #a0a8be;
+      --blue:       #4f8ef7;
+      --red:        #e0394a;
+      --ff-display: 'DM Serif Display', Georgia, serif;
+      --ff-mono:    'DM Mono', 'Courier New', monospace;
+      --sidebar-w:  220px;
+      --transition: 0.22s ease;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html, body { height: 100%; }
+
     body {
       background: var(--bg);
       color: var(--ink);
-      font-family: var(--font-body);
+      font-family: var(--ff-mono);
       font-size: 13px;
       line-height: 1.75;
-      padding: 60px 24px 100px;
+      display: flex;
     }
 
+    /* ════════════════════════════════════════════
+       SIDEBAR
+    ════════════════════════════════════════════ */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 36px 0 24px;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar-brand {
+      padding: 0 24px 32px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .sidebar-brand .name {
+      font-family: var(--ff-display);
+      font-size: 1.15rem;
+      font-weight: 400;
+      line-height: 1.2;
+      color: var(--ink);
+    }
+
+    .sidebar-brand .name span { color: var(--red); }
+
+    .sidebar-brand .tagline {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .nav-label {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 24px;
+      margin-bottom: 8px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 24px;
+      font-size: 12px;
+      color: var(--soft);
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: color var(--transition), border-color var(--transition), background var(--transition);
+      user-select: none;
+    }
+
+    .nav-item:hover {
+      color: var(--ink);
+      background: rgba(79,142,247,0.05);
+    }
+
+    .nav-item.active {
+      color: var(--blue);
+      border-left-color: var(--blue);
+      background: rgba(79,142,247,0.07);
+    }
+
+    .nav-item .icon {
+      width: 15px;
+      opacity: 0.6;
+      flex-shrink: 0;
+    }
+
+    .nav-item.active .icon { opacity: 1; }
+
+    .nav-section { margin-bottom: 28px; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 0 24px;
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .sidebar-footer a {
+      color: var(--muted);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      transition: color var(--transition);
+    }
+
+    .sidebar-footer a:hover { color: var(--blue); }
+
+    /* ════════════════════════════════════════════
+       MAIN CONTENT
+    ════════════════════════════════════════════ */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Background triangles */
+    .main::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      left: var(--sidebar-w);
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='900'%3E%3Cpolygon points='0,900 450,0 900,900' fill='none' stroke='%234f8ef7' stroke-width='1' opacity='0.04'/%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cpolygon points='350,0 700,700 0,700' fill='none' stroke='%23e0394a' stroke-width='1' opacity='0.035'/%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cpolygon points='0,0 600,300 0,600' fill='none' stroke='%234f8ef7' stroke-width='1' opacity='0.03'/%3E%3C/svg%3E");
+      background-size: 900px 900px, 700px 700px, 600px 600px;
+      background-position: -100px -80px, 60% 40%, right 10%;
+      background-repeat: no-repeat;
+    }
+
+    /* ─ Pages ─ */
     .page {
-      max-width: 680px;
-      margin: 0 auto;
+      display: none;
+      padding: 64px 56px 100px;
+      max-width: 800px;
+      position: relative;
+      z-index: 1;
+      animation: fadeUp 0.35s ease both;
     }
 
-    /* ── HEADER ── */
-    header {
-      border-bottom: 1.5px solid var(--accent);
+    .page.active { display: block; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ════════════════════════════════════════════
+       HOME PAGE
+    ════════════════════════════════════════════ */
+    .home-greeting {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 16px;
+    }
+
+    .home-name {
+      font-family: var(--ff-display);
+      font-size: clamp(2.8rem, 6vw, 4.2rem);
+      font-weight: 400;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+    }
+
+    .home-name span { color: var(--red); font-style: italic; }
+
+    .home-bio {
+      font-size: 13.5px;
+      color: var(--soft);
+      max-width: 520px;
+      line-height: 1.85;
+      margin-bottom: 40px;
+      border-left: 2px solid var(--border);
+      padding-left: 20px;
+    }
+
+    .home-bio strong { color: var(--ink); font-weight: 500; }
+
+    .home-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 4px 12px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 2px;
+      transition: border-color var(--transition), color var(--transition);
+    }
+
+    .tag:hover { border-color: var(--blue); color: var(--blue); cursor: default; }
+
+    .home-links {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: var(--ff-mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      padding: 9px 20px;
+      border: 1px solid;
+      border-radius: 2px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+
+    .btn-primary:hover { background: #3a7de8; border-color: #3a7de8; }
+
+    .btn-ghost {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--soft);
+    }
+
+    .btn-ghost:hover { border-color: var(--soft); color: var(--ink); }
+
+    .home-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 56px 0 40px;
+    }
+
+    .home-section-label {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .quick-facts {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .fact {
+      background: var(--bg);
+      padding: 20px;
+    }
+
+    .fact-value {
+      font-family: var(--ff-display);
+      font-size: 1.6rem;
+      color: var(--ink);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .fact-value span { color: var(--blue); }
+
+    .fact-label {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ════════════════════════════════════════════
+       RESUME PAGE  (same styles as before)
+    ════════════════════════════════════════════ */
+    .resume-header {
+      border-bottom: 1.5px solid var(--blue);
       padding-bottom: 28px;
       margin-bottom: 48px;
     }
 
-    header h1 {
-      font-family: var(--font-display);
-      font-size: clamp(2.4rem, 6vw, 3.6rem);
+    .resume-header h1 {
+      font-family: var(--ff-display);
+      font-size: clamp(2.2rem, 5vw, 3.2rem);
       font-weight: 400;
       letter-spacing: -0.02em;
       line-height: 1.1;
       margin-bottom: 12px;
     }
 
-    header h1 span {
-      color: var(--accent2);
-    }
+    .resume-header h1 span { color: var(--red); }
 
     .header-meta {
       display: flex;
@@ -71,32 +342,23 @@
     .header-meta a {
       color: var(--muted);
       text-decoration: none;
-      border-bottom: 1px solid var(--rule);
-      transition: color 0.15s, border-color 0.15s;
+      border-bottom: 1px solid var(--border);
+      transition: color var(--transition), border-color var(--transition);
     }
 
-    .header-meta a:hover {
-      color: var(--accent);
-      border-color: var(--accent);
-    }
+    .header-meta a:hover { color: var(--blue); border-color: var(--blue); }
 
-    /* ── SECTIONS ── */
-    section {
-      margin-bottom: 44px;
-    }
+    .r-section { margin-bottom: 44px; }
 
     .section-label {
       font-size: 10px;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--accent);
+      color: var(--blue);
       margin-bottom: 18px;
     }
 
-    /* ── ENTRIES ── */
-    .entry {
-      margin-bottom: 26px;
-    }
+    .entry { margin-bottom: 26px; }
 
     .entry-header {
       display: flex;
@@ -108,357 +370,401 @@
     }
 
     .entry-title {
-      font-family: var(--font-display);
+      font-family: var(--ff-display);
       font-size: 1.05rem;
       font-weight: 400;
     }
 
-    .entry-date {
-      font-size: 11px;
-      color: var(--muted);
-      white-space: nowrap;
-    }
+    .entry-date { font-size: 11px; color: var(--muted); white-space: nowrap; }
+    .entry-sub  { font-size: 11.5px; color: var(--muted); margin-bottom: 5px; }
 
-    .entry-sub {
-      font-size: 11.5px;
-      color: var(--muted);
-      margin-bottom: 5px;
-    }
+    .entry p, .entry li { color: var(--soft); font-size: 12.5px; }
 
-    .entry p, .entry li {
-      color: #a0a8be;
-      font-size: 12.5px;
-    }
+    .entry ul { list-style: none; padding: 0; }
+    .entry ul li::before { content: "— "; color: var(--muted); }
 
-    .entry ul {
-      list-style: none;
-      padding: 0;
-    }
+    hr.divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 
-    .entry ul li::before {
-      content: "— ";
-      color: var(--muted);
-    }
-
-    hr.divider {
-      border: none;
-      border-top: 1px solid var(--rule);
-      margin: 20px 0;
-    }
-
-    /* ── SKILLS GRID ── */
     .skills-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 14px;
     }
 
-    .skill-block .skill-cat {
-      font-size: 10px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 4px;
+    .skill-cat {
+      font-size: 10px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--blue); margin-bottom: 4px;
     }
 
-    .skill-block .skill-items {
-      font-size: 12.5px;
-      color: var(--ink);
-    }
+    .skill-items { font-size: 12.5px; color: var(--ink); }
 
-    /* ── COURSES WRAP ── */
-    .course-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
+    .course-list { display: flex; flex-wrap: wrap; gap: 6px; }
 
     .course-tag {
-      background: #181b26;
-      color: #8a93b0;
-      font-size: 11px;
-      padding: 3px 10px;
-      border-radius: 2px;
+      background: #181b26; color: #8a93b0;
+      font-size: 11px; padding: 3px 10px; border-radius: 2px;
     }
 
-    /* ── TWO-COL FOOTER ── */
     .two-col {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 28px;
     }
 
-    @media (max-width: 480px) {
+    /* ════════════════════════════════════════════
+       PLACEHOLDER PAGES
+    ════════════════════════════════════════════ */
+    .placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding-top: 80px;
+    }
+
+    .placeholder-eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 16px;
+    }
+
+    .placeholder-title {
+      font-family: var(--ff-display);
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    .placeholder-sub {
+      color: var(--muted);
+      font-size: 12.5px;
+      max-width: 400px;
+      line-height: 1.8;
+    }
+
+    .placeholder-line {
+      width: 40px;
+      height: 2px;
+      background: var(--red);
+      margin: 28px 0;
+    }
+
+    /* ════════════════════════════════════════════
+       MOBILE
+    ════════════════════════════════════════════ */
+    .hamburger {
+      display: none;
+      position: fixed;
+      top: 16px; left: 16px;
+      z-index: 200;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      font-size: 18px;
+      width: 36px; height: 36px;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+
+    @media (max-width: 700px) {
+      .hamburger { display: flex; }
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform var(--transition);
+      }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .main::before { left: 0; }
+      .page { padding: 56px 24px 80px; }
       .two-col { grid-template-columns: 1fr; }
-      .entry-header { flex-direction: column; }
-    }
-
-    /* ── BACKGROUND TRIANGLES ── */
-    body::before,
-    body::after {
-      content: '';
-      position: fixed;
-      z-index: 0;
-      pointer-events: none;
-      opacity: 0.045;
-    }
-
-    body::before {
-      width: 600px;
-      height: 600px;
-      top: -120px;
-      right: -160px;
-      background: transparent;
-      border-left: 600px solid transparent;
-      border-bottom: 600px solid var(--accent);
-    }
-
-    body::after {
-      width: 0;
-      height: 0;
-      bottom: 60px;
-      left: -100px;
-      border-right: 480px solid transparent;
-      border-top: 480px solid var(--accent2);
-    }
-
-    .page { position: relative; z-index: 1; }
-
-    .tri-mid {
-      position: fixed;
-      bottom: -80px;
-      right: -60px;
-      width: 0;
-      height: 0;
-      border-left: 340px solid transparent;
-      border-top: 340px solid var(--accent);
-      opacity: 0.03;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* ── BACKGROUND TRIANGLES ── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      background-image:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='900'%3E%3Cpolygon points='0,900 450,0 900,900' fill='none' stroke='%234f8ef7' stroke-width='1' opacity='0.04'/%3E%3C/svg%3E"),
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cpolygon points='350,0 700,700 0,700' fill='none' stroke='%23e0394a' stroke-width='1' opacity='0.035'/%3E%3C/svg%3E"),
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cpolygon points='0,0 600,300 0,600' fill='none' stroke='%234f8ef7' stroke-width='1' opacity='0.03'/%3E%3C/svg%3E");
-      background-size: 900px 900px, 700px 700px, 600px 600px;
-      background-position: -100px -80px, 60% 40%, right 10%;
-      background-repeat: no-repeat;
-    }
-
-    .page { position: relative; z-index: 1; }
-
-    /* ── SUBTLE FADE-IN ── */
-    .page { animation: fadeUp 0.5s ease both; }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-<div class="tri-mid"></div>
-<div class="page">
 
-  <!-- ══ HEADER ══════════════════════════════════════════════════ -->
-  <!-- EDIT: Change your name, course, email, phone, CGPA here -->
-  <header>
-    <h1>Vaishnav <span>Sairam</span></h1>
-    <div class="header-meta">
-      <span>B.E (Hons) Mechanical Engineering, BITS Pilani Goa · 2027</span>
-      <span>Minor in Computational Mechanics  · 2027</span>
-      <span>CGPA: 7.71</span>
-      <a href="mailto:f20230267@goa.bits-pilani.ac.in">f20230267@goa.bits-pilani.ac.in</a>
-      <a href="tel:9745266697">+91 9745266697</a>
-    </div>
-  </header>
+<!-- ══ HAMBURGER (mobile) ════════════════════════════════════════ -->
+<button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
 
-  <!-- ══ PROJECTS ═════════════════════════════════════════════════ -->
-  <!-- EDIT: Add/remove <div class="entry"> blocks as needed -->
-  <section>
-    <p class="section-label">Projects</p>
-
-    <div class="entry">
-      <div class="entry-header">
-        <span class="entry-title">Team Pegasus, Aerodynamics Club BITS Goa</span>
-        <span class="entry-date">Jul 2024 – Jul 2025</span>
-      </div>
-      <div class="entry-sub">Competitive RC Aircraft Team · BITS Pilani Goa · Mechanical Subsystem</div>
-      <p>Designed multiple iterations of the payload mechanism and landing gear; contributed to overall aircraft manufacturing.</p>
-    </div>
-
-    <hr class="divider"/>
-    
-    <div class="entry">
-      <div class="entry-header">
-        <span class="entry-title">Flutter Suppression of an Airfoil in Laminar Flow using a Detached Upstream Rotating Cylinder</span>
-        <span class="entry-date">Jan 2026 - Present</span>
-      </div>
-      <div class="entry-sub">Course Project · Mechanical Department, BITS Pilani Goa</div>
-      <p>Peformed Computational Simulations to understand the effects of a rotating cylinder on an airfoil in laminar flow. Currently running experimental cases</p>
-    </div>
-
-    <hr class="divider"/>
-
-    <div class="entry">
-      <div class="entry-header">
-        <span class="entry-title">Mitigation of Vortex Induced Vibrations</span>
-        <span class="entry-date">Aug 2025 – Present</span>
-      </div>
-      <div class="entry-sub">Aerospace Engineering · Mechanical Department, BITS Pilani Goa</div>
-      <p>Experimentally analysing airflow around a cylinder, the vibrations induced, and mitigation strategies. Currently learning Particle Image Velocimetry (PIV).</p>
-    </div>
-
-    <hr class="divider"/>
-
-      <div class="entry">
-      <div class="entry-header">
-        <span class="entry-title">Understanding Flame_Cooling Air Interactions in combustion chambers</span>
-        <span class="entry-date">Jan 2026 - Present</span>
-      </div>
-      <div class="entry-sub">Informal Course Project · Mechanical Department, BITS Pilani Goa</div>
-      <p>Peformed simulations to understand effects of Flame-Cooling air interactions on the presence of NOx in combustion byproducts</p>
-    </div>
-
-    <hr class="divider"/>
-
-    <div class="entry">
-      <div class="entry-header">
-        <span class="entry-title">Trailblazers 2025</span>
-        <span class="entry-date">Jan 2025</span>
-      </div>
-      <div class="entry-sub">Aerospace Engineering · College RC Aircraft Competition</div>
-      <p>Led a team of first-year students to build an RC plane; secured first place and completed all competition missions.</p>
-    </div>
-  </section>
-
-  <!-- ══ INTERNSHIP ════════════════════════════════════════════════ -->
-  <section>
-    <p class="section-label">Internship</p>
-
-    <div class="entry">
-      <div class="entry-header">
-        <span class="entry-title">Engineering Intern</span>
-        <span class="entry-date">CIRT Pune</span>
-      </div>
-      <p>Performed FEA on composite leaf springs using HyperMesh 2025, comparing AIS 2062 steel, GFRP, and Ti6Al4V+Graphene under identical loading. Validated CAD and simulations with analytical calculations and lab data.</p>
-    </div>
-  </section>
-
-  <!-- ══ SKILLS ════════════════════════════════════════════════════ -->
-  <!-- EDIT: Update each skill-items span with your tools -->
-  <section>
-    <p class="section-label">Skills</p>
-    <div class="skills-grid">
-      <div class="skill-block">
-        <div class="skill-cat">CAD</div>
-        <div class="skill-items">SolidWorks, Fusion 360, AutoCAD</div>
-      </div>
-      <div class="skill-block">
-        <div class="skill-cat">Simulation</div>
-        <div class="skill-items">Ansys Workbench, HyperWorks Suite, XFLR5</div>
-      </div>
-      <div class="skill-block">
-        <div class="skill-cat">Manufacturing</div>
-        <div class="skill-items">3D Printing, Laser Cutting</div>
-      </div>
-      <div class="skill-block">
-        <div class="skill-cat">Programming</div>
-        <div class="skill-items">MATLAB, Python, C</div>
-      </div>
-      <div class="skill-block">
-        <div class="skill-cat">Other</div>
-        <div class="skill-items">Wind Tunnel Usage</div>
-      </div>
-      <div class="skill-block">
-        <div class="skill-cat">Learning</div>
-        <div class="skill-items">OpenVSP, OpenFOAM</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══ COURSES ═══════════════════════════════════════════════════ -->
-  <!-- EDIT: Add/remove <span class="course-tag"> items -->
-  <section>
-    <p class="section-label">Relevant Courses</p>
-    <div class="course-list">
-      <span class="course-tag">Fluid-Structure Interactions</span>
-      <span class="course-tag">Continuum Mechanics</span>
-      <span class="course-tag">Gas Dynamics</span>
-      <span class="course-tag">Heat Transfer</span>
-      <span class="course-tag">Applied Thermodynamics</span>
-      <span class="course-tag">Numerical Techniques for Fluid Flow & Heat Transfer</span>
-      <span class="course-tag">Advanced Mechanics of Solids</span>
-      <span class="course-tag">Mechanics of Solids</span>
-      <span class="course-tag">Material Science & Engineering</span>
-      <span class="course-tag">Mechanisms & Machines</span>
-      <span class="course-tag">Manufacturing Processes</span>
-      <span class="course-tag">Engineering Optimization</span>
-      <span class="course-tag">Prime Movers in Fluid Machines</span>
-      <span class="course-tag">Data Mining in Mechanical Sciences</span>
-    </div>
-  </section>
-
-  <!-- ══ BOTTOM TWO-COL ════════════════════════════════════════════ -->
-  <div class="two-col">
-
-    <!-- Co-curriculars + Extra -->
-    <section>
-      <p class="section-label">Co-curriculars</p>
-      <div class="entry">
-        <div class="entry-header">
-          <span class="entry-title">Course Instructor</span>
-        </div>
-        <div class="entry-sub">Centre for Technical Education, BITS Goa</div>
-        <p>Taught the CTE course "Design Build & Fly" — aerodynamics basics, theory of flight, and aircraft working principles.</p>
-      </div>
-
-      <p class="section-label" style="margin-top:28px;">Extra-curriculars</p>
-      <div class="entry">
-        <div class="entry-header">
-          <span class="entry-title">Operations Head</span>
-        </div>
-        <div class="entry-sub">Department of Arts 'n' Deco, BITS Goa</div>
-        <p>Oversees non-fest events, HR operations, and social media for the department.</p>
-      </div>
-    </section>
-
-    <!-- Education + Languages + Volunteer -->
-    <section>
-      <p class="section-label">Education</p>
-      <div class="entry">
-        <ul>
-          <li>Class XII — Saraswathi Vidyanikethan Public School, CBSE (2023)</li>
-          <li>Class X — Bhavans Vidya Mandir Girinagar, CBSE (2021)</li>
-        </ul>
-      </div>
-
-      <p class="section-label" style="margin-top:28px;">Languages</p>
-      <div class="entry">
-        <ul>
-          <li>English</li>
-          <li>Hindi</li>
-          <li>Malayalam</li>
-          <li>German</li>
-        </ul>
-      </div>
-
-      <p class="section-label" style="margin-top:28px;">Volunteer</p>
-      <div class="entry">
-        <div class="entry-sub">AWC BITS Goa · Animal Welfare</div>
-        <p>Campus animal welfare initiatives — feeding, health monitoring, and care for stray cats and dogs.</p>
-      </div>
-    </section>
-
+<!-- ══ SIDEBAR ═══════════════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="name">Vaishnav <span>Sairam</span></div>
+    <div class="tagline">Mech · Aero · BITS Goa</div>
   </div>
 
-</div>
+  <div class="nav-section">
+    <div class="nav-label">Menu</div>
+    <div class="nav-item active" data-page="home">
+      <!-- home icon -->
+      <svg class="icon" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6-.5.5.708.708L2.5 7.707V13.5A1.5 1.5 0 0 0 4 15h8a1.5 1.5 0 0 0 1.5-1.5V7.707l.646.647.708-.708-.5-.5-6-6zM13 7.207V13.5a.5.5 0 0 1-.5.5H9v-3.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5V14H4.5a.5.5 0 0 1-.5-.5V7.207L8 3.207l5 5z"/>
+      </svg>
+      Home
+    </div>
+    <div class="nav-item" data-page="resume">
+      <!-- doc icon -->
+      <svg class="icon" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1.5v2a1 1 0 0 0 1 1h2L9.5 1.5zM4.5 8a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7zm0 2a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7zm0 2a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4z"/>
+      </svg>
+      Resume
+    </div>
+    <div class="nav-item" data-page="photography">
+      <!-- camera icon -->
+      <svg class="icon" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+        <path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z"/>
+      </svg>
+      Photography
+    </div>
+    <div class="nav-item" data-page="blog">
+      <!-- pencil icon -->
+      <svg class="icon" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+      </svg>
+      Blog
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <a href="mailto:f20230267@goa.bits-pilani.ac.in">Email</a> ·
+    <a href="https://www.instagram.com/just_whyshnav/" target="_blank">Instagram</a>
+  </div>
+</aside>
+
+<!-- ══ MAIN ═══════════════════════════════════════════════════════ -->
+<main class="main">
+
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <p class="home-greeting">Hey, I'm</p>
+    <h1 class="home-name">Vaishnav<br/><span>Sairam.</span></h1>
+    <p class="home-bio">
+      Mechanical Engineering student at <strong>BITS Pilani Goa</strong>, 
+      currently obsessing over aerodynamics, vortex-induced vibrations, 
+      and building RC planes that actually fly. 
+      I like making things — whether that's <strong>CAD models, simulations, 
+      or the occasional RC aircraft</strong> that wins competitions.
+    </p>
+    <div class="home-tags">
+      <span class="tag">Aerospace</span>
+      <span class="tag">CFD</span>
+      <span class="tag">CAD / FEA</span>
+      <span class="tag">RC Aircraft</span>
+      <span class="tag">PIV</span>
+      <span class="tag">3D Printing</span>
+      <span class="tag">BITS Goa '27</span>
+    </div>
+    <div class="home-links">
+      <span class="btn btn-primary" onclick="navigate('resume')">View Resume →</span>
+      <a class="btn btn-ghost" href="mailto:f20230267@goa.bits-pilani.ac.in">Get in touch</a>
+    </div>
+
+    <hr class="home-divider"/>
+
+    <p class="home-section-label">By the numbers</p>
+    <div class="quick-facts">
+      <div class="fact">
+        <div class="fact-value">7<span>.71</span></div>
+        <div class="fact-label">CGPA</div>
+      </div>
+      <div class="fact">
+        <div class="fact-value">3<span>+</span></div>
+        <div class="fact-label">Aerospace Projects</div>
+      </div>
+      <div class="fact">
+        <div class="fact-value">1<span>st</span></div>
+        <div class="fact-label">Trailblazers 2025</div>
+      </div>
+      <div class="fact">
+        <div class="fact-value">6<span>+</span></div>
+        <div class="fact-label">CAD & Sim Tools</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESUME -->
+  <div class="page" id="page-resume">
+    <div class="resume-header">
+      <h1>Vaishnav <span>Sairam</span></h1>
+      <div class="header-meta">
+        <span>B.E (Hons) Mechanical Engineering, BITS Pilani Goa · 2027</span>
+        <span>CGPA: 7.71</span>
+        <a href="mailto:f20230267@goa.bits-pilani.ac.in">f20230267@goa.bits-pilani.ac.in</a>
+        <a href="tel:9745266697">+91 9745266697</a>
+      </div>
+    </div>
+
+    <!-- Projects -->
+    <div class="r-section">
+      <p class="section-label">Projects</p>
+      <div class="entry">
+        <div class="entry-header">
+          <span class="entry-title">Team Pegasus</span>
+          <span class="entry-date">Jul 2024 – Jul 2025</span>
+        </div>
+        <div class="entry-sub">Competitive RC Aircraft Team · BITS Pilani Goa · Mechanical Subsystem</div>
+        <p>Designed multiple iterations of the payload mechanism and landing gear; contributed to overall aircraft manufacturing.</p>
+      </div>
+      <hr class="divider"/>
+      <div class="entry">
+        <div class="entry-header">
+          <span class="entry-title">Flutter Suppression of an Airfoil in Laminar Flow using a Detached Upstream Rotating Cylinder</span>
+          <span class="entry-date">Jan 2025 – Present</span>
+        </div>
+        <div class="entry-sub">Course Project · Mechanical Department, BITS Pilani Goa</div>
+        <p>Performed computational simulations to understand the effects of a rotating cylinder on an airfoil in laminar flow. Currently running experimental cases.</p>
+      </div>
+      <hr class="divider"/>
+      <div class="entry">
+        <div class="entry-header">
+          <span class="entry-title">Mitigation of Vortex Induced Vibration</span>
+          <span class="entry-date">Aug 2025 – Present</span>
+        </div>
+        <div class="entry-sub">Study Project · Mechanical Department, BITS Pilani Goa</div>
+        <p>Experimentally analysing airflow around a cylinder, the vibrations induced, and mitigation strategies. Currently learning Particle Image Velocimetry (PIV).</p>
+      </div>
+      <hr class="divider"/>
+      <div class="entry">
+        <div class="entry-header">
+          <span class="entry-title">Trailblazers 2025</span>
+          <span class="entry-date">2025</span>
+        </div>
+        <div class="entry-sub">College RC Aircraft Competition</div>
+        <p>Led a team of first-year students to build an RC plane; secured first place and completed all competition missions.</p>
+      </div>
+    </div>
+
+    <!-- Internship -->
+    <div class="r-section">
+      <p class="section-label">Internship</p>
+      <div class="entry">
+        <div class="entry-header">
+          <span class="entry-title">Engineering Intern</span>
+          <span class="entry-date">CIRT Pune</span>
+        </div>
+        <p>Performed FEA on composite leaf springs using HyperMesh 2025, comparing AIS 2062 steel, GFRP, and Ti6Al4V+Graphene under identical loading. Validated CAD and simulations with analytical calculations and lab data.</p>
+      </div>
+    </div>
+
+    <!-- Skills -->
+    <div class="r-section">
+      <p class="section-label">Skills</p>
+      <div class="skills-grid">
+        <div><div class="skill-cat">CAD</div><div class="skill-items">SolidWorks, Fusion 360, AutoCAD</div></div>
+        <div><div class="skill-cat">Simulation</div><div class="skill-items">Ansys Workbench, HyperWorks Suite, XFLR5</div></div>
+        <div><div class="skill-cat">Manufacturing</div><div class="skill-items">3D Printing, Laser Cutting</div></div>
+        <div><div class="skill-cat">Programming</div><div class="skill-items">MATLAB, Python, C</div></div>
+        <div><div class="skill-cat">Other</div><div class="skill-items">Wind Tunnel Usage</div></div>
+        <div><div class="skill-cat">Learning</div><div class="skill-items">OpenVSP, OpenFOAM</div></div>
+      </div>
+    </div>
+
+    <!-- Courses -->
+    <div class="r-section">
+      <p class="section-label">Relevant Courses</p>
+      <div class="course-list">
+        <span class="course-tag">Fluid Mechanics</span>
+        <span class="course-tag">Gas Dynamics</span>
+        <span class="course-tag">Heat Transfer</span>
+        <span class="course-tag">Applied Thermodynamics</span>
+        <span class="course-tag">Numerical Techniques for Fluid Flow & Heat Transfer</span>
+        <span class="course-tag">Advanced Mechanics of Solids</span>
+        <span class="course-tag">Mechanics of Solids</span>
+        <span class="course-tag">Material Science & Engineering</span>
+        <span class="course-tag">Mechanisms & Machines</span>
+        <span class="course-tag">Manufacturing Processes</span>
+        <span class="course-tag">Data Mining in Mechanical Sciences</span>
+      </div>
+    </div>
+
+    <!-- Bottom two-col -->
+    <div class="two-col">
+      <div>
+        <p class="section-label">Co-curriculars</p>
+        <div class="entry">
+          <div class="entry-title">Course Instructor</div>
+          <div class="entry-sub">Centre for Technical Education, BITS Goa</div>
+          <p>Taught "Design Build & Fly" — aerodynamics basics, theory of flight, and aircraft working principles.</p>
+        </div>
+        <p class="section-label" style="margin-top:28px;">Extra-curriculars</p>
+        <div class="entry">
+          <div class="entry-title">Operations Head</div>
+          <div class="entry-sub">Department of Arts 'n' Deco, BITS Goa</div>
+          <p>Non-fest events, HR operations, and social media for the department.</p>
+        </div>
+      </div>
+      <div>
+        <p class="section-label">Education</p>
+        <div class="entry">
+          <ul>
+            <li>Class XII — Saraswathi Vidyanikethan Public School, CBSE (2023)</li>
+            <li>Class X — Bhavans Vidya Mandir Girinagar, CBSE (2021)</li>
+          </ul>
+        </div>
+        <p class="section-label" style="margin-top:28px;">Languages</p>
+        <div class="entry">
+          <ul><li>English</li><li>Hindi</li><li>Malayalam</li></ul>
+        </div>
+        <p class="section-label" style="margin-top:28px;">Volunteer</p>
+        <div class="entry">
+          <div class="entry-sub">AWC BITS Goa · Animal Welfare</div>
+          <p>Campus animal welfare initiatives — feeding, health monitoring, and care for stray cats and dogs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHOTOGRAPHY -->
+  <div class="page" id="page-photography">
+    <div class="placeholder">
+      <p class="placeholder-eyebrow">Coming soon</p>
+      <h2 class="placeholder-title">Photography</h2>
+      <div class="placeholder-line"></div>
+      <p class="placeholder-sub">This space is reserved for photos. Drop your shots here whenever you're ready — landscapes, campus life, whatever you shoot.</p>
+    </div>
+  </div>
+
+  <!-- BLOG -->
+  <div class="page" id="page-blog">
+    <div class="placeholder">
+      <p class="placeholder-eyebrow">Coming soon</p>
+      <h2 class="placeholder-title">Blog</h2>
+      <div class="placeholder-line"></div>
+      <p class="placeholder-sub">Thoughts, writeups, project logs. When you've got something to say, this is where it goes.</p>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // ── Navigation ──────────────────────────────────────────────
+  function navigate(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+    const page = document.getElementById('page-' + pageId);
+    const nav  = document.querySelector('[data-page="' + pageId + '"]');
+    if (page) page.classList.add('active');
+    if (nav)  nav.classList.add('active');
+
+    // close sidebar on mobile after nav
+    document.getElementById('sidebar').classList.remove('open');
+    window.scrollTo(0, 0);
+  }
+
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => navigate(item.dataset.page));
+  });
+
+  // ── Hamburger ───────────────────────────────────────────────
+  document.getElementById('hamburger').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+  });
+</script>
+
 </body>
 </html>
