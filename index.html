@@ -452,6 +452,66 @@
     }
 
     /* ════════════════════════════════════════════
+       TEAMS STRIP
+    ════════════════════════════════════════════ */
+    .teams-strip {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .teams-strip::-webkit-scrollbar { height: 3px; }
+    .teams-strip::-webkit-scrollbar-track { background: transparent; }
+    .teams-strip::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .team-tile {
+      flex: 0 0 120px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 18px 12px 14px;
+      transition: border-color var(--transition), transform var(--transition);
+      cursor: default;
+    }
+
+    .team-tile:hover {
+      border-color: var(--muted);
+      transform: translateY(-2px);
+    }
+
+    .team-tile img {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 6px rgba(0,0,0,0.4));
+    }
+
+    .team-info { text-align: center; }
+
+    .team-name {
+      font-size: 11.5px;
+      color: var(--ink);
+      font-weight: 500;
+      line-height: 1.2;
+      margin-bottom: 3px;
+    }
+
+    .team-league {
+      font-size: 9.5px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ════════════════════════════════════════════
        MOBILE
     ════════════════════════════════════════════ */
     .hamburger {
@@ -588,6 +648,59 @@
         <div class="fact-value">Carlsberg</span></div>
         <div class="fact-label">Fav Drink</div>
       </div>
+    </div>
+  </div>
+
+    <hr class="home-divider"/>
+
+    <p class="home-section-label">Teams I support</p>
+    <div class="teams-strip">
+
+      <!-- Ferrari — F1 -->
+      <div class="team-tile">
+        <img src="https://upload.wikimedia.org/wikipedia/en/d/d7/Scuderia_Ferrari_HP_logo.svg" alt="Ferrari"/>
+        <div class="team-info">
+          <div class="team-name">Ferrari</div>
+          <div class="team-league">Formula 1</div>
+        </div>
+      </div>
+
+      <!-- Chelsea — Premier League -->
+      <div class="team-tile">
+        <img src="https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg" alt="Chelsea FC"/>
+        <div class="team-info">
+          <div class="team-name">Chelsea</div>
+          <div class="team-league">Premier League</div>
+        </div>
+      </div>
+
+      <!-- Napoli — Serie A -->
+      <div class="team-tile">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/SSC_Napoli_2007.svg" alt="Napoli"/>
+        <div class="team-info">
+          <div class="team-name">Napoli</div>
+          <div class="team-league">Serie A</div>
+        </div>
+      </div>
+
+      <!-- Dortmund — Bundesliga -->
+      <div class="team-tile">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/67/Borussia_Dortmund_logo.svg" alt="Borussia Dortmund"/>
+        <div class="team-info">
+          <div class="team-name">Dortmund</div>
+          <div class="team-league">Bundesliga</div>
+        </div>
+      </div>
+
+      <!-- Cadillac — WEC -->
+      <div class="team-tile">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/Cadillac_logo.svg" alt="Cadillac Racing"/>
+        <div class="team-info">
+          <div class="team-name">Cadillac</div>
+          <div class="team-league">WEC</div>
+        </div>
+      </div>
+
     </div>
   </div>
 
