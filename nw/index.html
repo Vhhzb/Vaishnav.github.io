@@ -333,24 +333,22 @@ const LEVEL_META = {
 
 const STORAGE_KEY = "nicosweg-progress-v1";
 let progress = {};
-let storageReady = false;
 
 function epId(level, idx){ return level + "-" + (idx+1); }
 
-async function loadProgress(){
+function loadProgress(){
   try{
-    const res = await window.storage.get(STORAGE_KEY);
-    if(res && res.value){ progress = JSON.parse(res.value); }
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){ progress = JSON.parse(raw); }
   }catch(e){
     progress = {};
   }
-  storageReady = true;
   document.getElementById("loadingNote").style.display = "none";
 }
 
-async function saveProgress(){
+function saveProgress(){
   try{
-    await window.storage.set(STORAGE_KEY, JSON.stringify(progress));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
   }catch(e){
     console.error("Failed to save progress:", e);
   }
@@ -447,9 +445,9 @@ document.getElementById("searchBox").addEventListener("input", (e) => {
   }
 });
 
-(async function init(){
+(function init(){
   buildUI();
-  await loadProgress();
+  loadProgress();
   applyProgressToCheckboxes();
 })();
 </script>
