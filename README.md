@@ -4,6 +4,7 @@ Just  a bunch of stuff about me.
 And a sprinkle of pet projects here n there....
 
 Who knows. You might find something useful here....
+(And some cool side projects)
 
 
 Resume' Link = https://vhhzb.github.io/
