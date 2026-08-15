@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sweet Revenge — Prototype</title>
+<style>
+  :root {
+    --bg: #0a0808;
+    --floor: #16100f;
+    --blood: #a11d1d;
+    --blood-bright: #e0342f;
+    --bone: #e8dfd0;
+    --bone-dim: #9c8f7c;
+    --gold: #c9a24b;
+  }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg);
+    overflow: hidden;
+    font-family: 'Courier New', monospace;
+  }
+  #wrap {
+    position: relative;
+    width: 100vw; height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #stage {
+    position: relative;
+    width: 800px; height: 480px;
+  }
+  canvas {
+    background: var(--floor);
+    box-shadow: 0 0 0 2px var(--blood), 0 0 40px rgba(161,29,29,0.35);
+    cursor: crosshair;
+    image-rendering: pixelated;
+    display: block;
+  }
+  #hud {
+    position: absolute; top: 16px; left: 16px;
+    color: var(--bone-dim);
+    font-size: 12px; letter-spacing: 1px;
+    text-transform: uppercase;
+    user-select: none;
+    pointer-events: none;
+  }
+  #hud .title {
+    color: var(--blood-bright);
+    font-size: 15px;
+    margin-bottom: 6px;
+    letter-spacing: 3px;
+  }
+  #hud .row { margin-top: 4px; opacity: 0.85; }
+  #bars { position: absolute; bottom: 16px; left: 16px; pointer-events: none; }
+  .barlabel { color: var(--bone-dim); font-size: 10px; letter-spacing: 2px; margin-bottom: 3px; }
+  .barbg { width: 180px; height: 10px; background: #1c1414; border: 1px solid #3a2222; margin-bottom: 10px; }
+  .barfill { height: 100%; background: var(--blood-bright); transition: width 0.1s linear; }
+  .barfill.dash { background: var(--gold); }
+  #scan {
+    position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom, rgba(0,0,0,0.12) 0px, rgba(0,0,0,0.12) 1px, transparent 1px, transparent 3px
+    );
+    mix-blend-mode: multiply;
+  }
+
+  /* ---------- MENU ---------- */
+  #game-layer { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+  #game-layer.active { opacity: 1; pointer-events: auto; }
+
+  #menu-layer {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 30%, #1a0d0d 0%, #0a0808 75%);
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid var(--blood);
+    box-shadow: 0 0 40px rgba(161,29,29,0.35);
+    z-index: 5;
+  }
+  #menu-layer.hidden { display: none; }
+
+  .menu-panel { display: none; flex-direction: column; align-items: center; width: 100%; }
+  .menu-panel.active { display: flex; }
+
+  .menu-title {
+    color: var(--bone);
+    font-size: 34px;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    text-shadow: 0 0 12px rgba(224,52,47,0.65), 0 0 2px #000;
+  }
+  .menu-title span { color: var(--blood-bright); }
+  .menu-sub {
+    color: var(--bone-dim);
+    font-size: 11px;
+    letter-spacing: 4px;
+    margin-bottom: 44px;
+    text-transform: uppercase;
+  }
+
+  .menu-btn {
+    background: transparent;
+    border: 1px solid var(--blood);
+    color: var(--bone);
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 12px 38px;
+    margin: 6px 0;
+    width: 260px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .menu-btn:hover:not(:disabled) {
+    background: var(--blood);
+    color: #0a0808;
+    letter-spacing: 5px;
+  }
+  .menu-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    border-color: #4a2c2c;
+  }
+  .menu-btn .hint {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 1px;
+    opacity: 0.6;
+    margin-top: 2px;
+  }
+
+  .menu-back {
+    margin-top: 26px;
+    background: none;
+    border: none;
+    color: var(--bone-dim);
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .menu-back:hover { color: var(--bone); }
+
+  .opt-row {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    margin: 14px 0;
+  }
+  .opt-row label {
+    color: var(--bone-dim);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .opt-row input[type="range"] {
+    width: 100%;
+    accent-color: var(--blood-bright);
+  }
+  .opt-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 320px; margin: 14px 0;
+    color: var(--bone-dim); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  }
+  .toggle-btn {
+    width: 46px; height: 22px; border: 1px solid var(--blood);
+    position: relative; cursor: pointer; background: transparent;
+  }
+  .toggle-btn .knob {
+    position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+    background: var(--blood-bright); transition: left 0.15s;
+  }
+  .toggle-btn.on .knob { left: 26px; }
+  .toggle-btn.on { border-color: var(--blood-bright); }
+
+  .level-list {
+    width: 420px;
+    max-height: 330px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    border: 1px solid #3a2222;
+  }
+  .level-list::-webkit-scrollbar { width: 8px; }
+  .level-list::-webkit-scrollbar-thumb { background: var(--blood); }
+  .level-list::-webkit-scrollbar-track { background: #150e0e; }
+
+  .level-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #241413;
+    color: var(--bone);
+    font-family: 'Courier New', monospace;
+    padding: 10px 16px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.12s;
+  }
+  .level-row:last-child { border-bottom: none; }
+  .level-row:hover { background: rgba(161,29,29,0.25); }
+  .level-num {
+    color: var(--blood-bright);
+    font-size: 12px;
+    width: 28px;
+    flex-shrink: 0;
+  }
+  .level-name {
+    font-size: 13px;
+    letter-spacing: 1px;
+    flex-grow: 1;
+  }
+  .level-tag {
+    font-size: 9px;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: 1px solid var(--gold);
+    padding: 2px 6px;
+    flex-shrink: 0;
+  }
+
+  .level-track-btn {
+    flex-shrink: 0;
+    width: 22px; height: 22px;
+    border: 1px solid #4a2c2c;
+    background: transparent;
+    color: var(--bone-dim);
+    font-size: 11px;
+    cursor: pointer;
+    margin-left: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .level-track-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .level-track-btn.loaded { border-color: var(--gold); color: var(--gold); }
+  .level-track-btn.loaded::after { content: ''; }
+
+  #levelBanner {
+    position: absolute;
+    top: 40%;
+    left: 0; right: 0;
+    text-align: center;
+    color: var(--bone);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s;
+    z-index: 8;
+  }
+  #levelBanner.show { opacity: 1; }
+  #levelBanner .lb-num {
+    color: var(--blood-bright);
+    font-size: 12px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  #levelBanner .lb-name {
+    font-size: 26px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    text-shadow: 0 0 14px rgba(224,52,47,0.7), 0 0 3px #000;
+  }
+  #levelBanner .lb-tag {
+    margin-top: 8px;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .exit-msg {
+    color: var(--bone-dim);
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+    text-align: center;
+    line-height: 2;
+  }
+  .fade-black {
+    position: absolute; inset: 0; background: #000; opacity: 0;
+    transition: opacity 1.2s; pointer-events: none; z-index: 10;
+  }
+  .fade-black.on { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="stage">
+
+    <div id="game-layer">
+      <canvas id="game" width="800" height="480"></canvas>
+      <div id="hud">
+        <div class="title">✝ Prototype — Movement &amp; Combat</div>
+        <div class="row" id="hudLevel" style="color:var(--blood-bright);">Level 01 — Demolition Lovers</div>
+        <div class="row">A / D — move &nbsp; W — jump &nbsp; S — slide</div>
+        <div class="row">Left Click — strike &nbsp; Right Click — dash</div>
+        <div class="row">ESC — pause / menu</div>
+      </div>
+      <div id="bars">
+        <div class="barlabel">Health</div>
+        <div class="barbg"><div class="barfill" id="hpbar" style="width:100%"></div></div>
+        <div class="barlabel">Dash</div>
+        <div class="barbg"><div class="barfill dash" id="dashbar" style="width:100%"></div></div>
+      </div>
+      <div id="scan"></div>
+      <audio id="bgMusic" loop></audio>
+      <div id="levelBanner">
+        <div class="lb-num" id="lbNum">Level 01</div>
+        <div class="lb-name" id="lbName">Demolition Lovers</div>
+        <div class="lb-tag" id="lbTag" style="display:none;">Flashback</div>
+      </div>
+    </div>
+
+    <div id="menu-layer">
+      <!-- MAIN -->
+      <div class="menu-panel active" id="panel-main">
+        <div class="menu-title">SWEET <span>REVENGE</span></div>
+        <div class="menu-sub">— prototype build —</div>
+        <button class="menu-btn" data-goto="panel-play">Play</button>
+        <button class="menu-btn" data-goto="panel-quickplay">Quick Play</button>
+        <button class="menu-btn" data-goto="panel-options">Options</button>
+        <button class="menu-btn" id="btn-exit">Exit</button>
+      </div>
+
+      <!-- PLAY SUBMENU -->
+      <div class="menu-panel" id="panel-play">
+        <div class="menu-title" style="font-size:24px;">PLAY</div>
+        <div class="menu-sub">choose your entry</div>
+        <button class="menu-btn" id="btn-continue" disabled>
+          Continue
+          <span class="hint" id="continue-hint">no run in progress</span>
+        </button>
+        <button class="menu-btn" id="btn-start">Play from the Start</button>
+        <button class="menu-back" data-goto="panel-main">&larr; back</button>
+      </div>
+
+      <!-- QUICK PLAY -->
+      <div class="menu-panel" id="panel-quickplay">
+        <div class="menu-title" style="font-size:22px;">QUICK PLAY</div>
+        <div class="menu-sub">jump into any level</div>
+        <div class="menu-sub" style="margin-bottom:14px; font-size:9px; opacity:0.7;">click the 🎵 icon to load your own track for a level</div>
+        <div class="level-list" id="levelList"></div>
+        <button class="menu-back" data-goto="panel-main">&larr; back</button>
+      </div>
+
+      <!-- OPTIONS -->
+      <div class="menu-panel" id="panel-options">
+        <div class="menu-title" style="font-size:24px;">OPTIONS</div>
+        <div class="menu-sub">tune the experience</div>
+        <div class="opt-row">
+          <label><span>Music Volume</span><span id="musicVal">70%</span></label>
+          <input type="range" id="musicSlider" min="0" max="100" value="70">
+        </div>
+        <div class="opt-row">
+          <label><span>SFX Volume</span><span id="sfxVal">80%</span></label>
+          <input type="range" id="sfxSlider" min="0" max="100" value="80">
+        </div>
+        <div class="opt-toggle">
+          <span>Screen Shake</span>
+          <button class="toggle-btn on" id="shakeToggle"><div class="knob"></div></button>
+        </div>
+        <button class="menu-back" data-goto="panel-main">&larr; back</button>
+      </div>
+
+      <!-- EXIT -->
+      <div class="menu-panel" id="panel-exit">
+        <div class="menu-title" style="font-size:22px;">REST NOW.</div>
+        <div class="exit-msg">you may close this tab.<br>if it didn't close on its own,<br>your browser blocked it — that's normal.</div>
+        <button class="menu-back" data-goto="panel-main">&larr; take me back</button>
+      </div>
+    </div>
+
+    <div class="fade-black" id="fadeBlack"></div>
+  </div>
+</div>
+
+<script>
+/* ---------------- MENU STATE MACHINE ---------------- */
+const menuLayer = document.getElementById('menu-layer');
+const gameLayer = document.getElementById('game-layer');
+const fadeBlack = document.getElementById('fadeBlack');
+
+let hasSession = false;
+let currentLevelIndex = 0;
+const settings = { music: 70, sfx: 80, screenShake: true };
+
+const LEVELS = [
+  { name: "Demolition Lovers" },
+  { name: "Helena" },
+  { name: "Give 'Em Hell, Kid" },
+  { name: "To the End" },
+  { name: "You Know What They Do to Guys Like Us in Prison" },
+  { name: "I'm Not Okay (I Promise)" },
+  { name: "The Ghost of You" },
+  { name: "The Jetset Life Is Gonna Kill You" },
+  { name: "Interlude" },
+  { name: "Thank You for the Venom" },
+  { name: "Hang 'Em High" },
+  { name: "It's Not a Fashion Statement, It's a Deathwish" },
+  { name: "Cemetery Drive" },
+  { name: "I Never Told You What I Do for a Living" },
+];
+
+const levelListEl = document.getElementById('levelList');
+LEVELS.forEach((lvl, i) => {
+  const row = document.createElement('button');
+  row.className = 'level-row';
+  row.innerHTML = `<span class="level-num">${String(i+1).padStart(2,'0')}</span>` +
+    `<span class="level-name">${lvl.name}</span>` +
+    (lvl.tag ? `<span class="level-tag">${lvl.tag}</span>` : '');
+  row.addEventListener('click', () => {
+    resetGame();
+    currentLevelIndex = i;
+    hasSession = true;
+    document.getElementById('btn-continue').disabled = false;
+    document.getElementById('continue-hint').textContent = 'resume where you left off';
+    enterGame();
+  });
+
+  // per-level track loader — user supplies their own audio file, nothing bundled
+  const trackBtn = document.createElement('span');
+  trackBtn.className = 'level-track-btn';
+  trackBtn.textContent = '\u266A';
+  trackBtn.title = 'Load a track for this level';
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = 'audio/*';
+  fileInput.style.display = 'none';
+  fileInput.addEventListener('change', (e) => {
+    e.stopPropagation();
+    const file = fileInput.files[0];
+    if (!file) return;
+    if (lvl.trackUrl) URL.revokeObjectURL(lvl.trackUrl);
+    lvl.trackUrl = URL.createObjectURL(file);
+    lvl.trackName = file.name;
+    trackBtn.classList.add('loaded');
+    trackBtn.title = 'Loaded: ' + file.name;
+    if (currentLevelIndex === i && gameLayer.classList.contains('active')) {
+      playLevelTrack();
+    }
+  });
+  trackBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    fileInput.click();
+  });
+  row.appendChild(trackBtn);
+  row.appendChild(fileInput);
+  levelListEl.appendChild(row);
+});
+
+const bgMusic = document.getElementById('bgMusic');
+bgMusic.volume = settings.music / 100;
+
+function playLevelTrack() {
+  const lvl = LEVELS[currentLevelIndex];
+  if (lvl.trackUrl) {
+    if (bgMusic.src !== lvl.trackUrl) bgMusic.src = lvl.trackUrl;
+    bgMusic.currentTime = bgMusic.src === lvl.trackUrl ? bgMusic.currentTime : 0;
+    bgMusic.volume = settings.music / 100;
+    bgMusic.play().catch(() => {}); // ignored if browser blocks autoplay before any gesture
+  } else {
+    bgMusic.pause();
+  }
+}
+
+function showLevelBanner() {
+  const lvl = LEVELS[currentLevelIndex];
+  document.getElementById('lbNum').textContent = 'Level ' + String(currentLevelIndex+1).padStart(2,'0');
+  document.getElementById('lbName').textContent = lvl.name;
+  const tagEl = document.getElementById('lbTag');
+  if (lvl.tag) { tagEl.textContent = lvl.tag; tagEl.style.display = 'block'; }
+  else { tagEl.style.display = 'none'; }
+  const banner = document.getElementById('levelBanner');
+  banner.classList.add('show');
+  clearTimeout(showLevelBanner._t);
+  showLevelBanner._t = setTimeout(() => banner.classList.remove('show'), 2200);
+  document.getElementById('hudLevel').textContent =
+    'Level ' + String(currentLevelIndex+1).padStart(2,'0') + ' — ' + lvl.name;
+}
+
+function showPanel(id) {
+  document.querySelectorAll('.menu-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+document.querySelectorAll('[data-goto]').forEach(el => {
+  el.addEventListener('click', () => showPanel(el.dataset.goto));
+});
+
+document.getElementById('btn-start').addEventListener('click', () => {
+  resetGame();
+  currentLevelIndex = 0;
+  hasSession = true;
+  document.getElementById('btn-continue').disabled = false;
+  document.getElementById('continue-hint').textContent = 'resume where you left off';
+  enterGame();
+});
+
+document.getElementById('btn-continue').addEventListener('click', () => {
+  if (!hasSession) return;
+  enterGame();
+});
+
+document.getElementById('btn-exit').addEventListener('click', () => {
+  showPanel('panel-exit');
+  window.close(); // no-op if the tab wasn't opened by script — message covers that
+});
+
+function enterGame() {
+  menuLayer.classList.add('hidden');
+  gameLayer.classList.add('active');
+  showPanel('panel-play'); // reset submenu so returning later looks right
+  showLevelBanner();
+  playLevelTrack();
+}
+
+function exitToMenu() {
+  gameLayer.classList.remove('active');
+  menuLayer.classList.remove('hidden');
+  showPanel('panel-main');
+  bgMusic.pause();
+}
+
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && gameLayer.classList.contains('active')) {
+    exitToMenu();
+  }
+});
+
+/* options wiring */
+const musicSlider = document.getElementById('musicSlider');
+const sfxSlider = document.getElementById('sfxSlider');
+const shakeToggle = document.getElementById('shakeToggle');
+musicSlider.addEventListener('input', () => {
+  settings.music = +musicSlider.value;
+  document.getElementById('musicVal').textContent = settings.music + '%';
+  bgMusic.volume = settings.music / 100;
+});
+sfxSlider.addEventListener('input', () => {
+  settings.sfx = +sfxSlider.value;
+  document.getElementById('sfxVal').textContent = settings.sfx + '%';
+});
+shakeToggle.addEventListener('click', () => {
+  settings.screenShake = !settings.screenShake;
+  shakeToggle.classList.toggle('on', settings.screenShake);
+});
+
+/* ---------------- GAME ---------------- */
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+const GROUND_Y = H - 60;
+
+const keys = {};
+window.addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (k === 'w' && !keys['w']) player.jumpQueued = true;
+  keys[k] = true;
+});
+window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+let mouse = { x: W/2, y: H/2 };
+canvas.addEventListener('mousemove', e => {
+  const r = canvas.getBoundingClientRect();
+  mouse.x = e.clientX - r.left;
+  mouse.y = e.clientY - r.top;
+});
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+canvas.addEventListener('mousedown', e => {
+  if (e.button === 0) tryAttack();
+  if (e.button === 2) tryDash();
+});
+
+const GRAVITY = 1500;
+const JUMP_FORCE = 560;
+const MOVE_SPEED = 230;
+const SLIDE_BOOST = 190;
+
+let player, enemies, slashParticles, dashTrail, shake;
+
+function freshPlayer() {
+  return {
+    x: W/2, feetY: GROUND_Y, vy: 0,
+    w: 16, standH: 30, h: 30, targetH: 30,
+    facing: 0, facingDir: 1, grounded: true, jumpQueued: false,
+    sliding: false, slideBoost: 0,
+    hp: 100, maxHp: 100, invuln: 0,
+    attackCd: 0, attackDur: 0,
+    dashCd: 0, dashDur: 0, dashMaxCd: 0.9, dashDirX: 0,
+    hitEnemiesThisSwing: new Set(),
+  };
+}
+function makeDummy(x) {
+  return { x, feetY: GROUND_Y, w: 18, h: 30, hp: 30, maxHp: 30, flash: 0,
+           knockX: 0, alive: true, respawnT: 0, baseX: x };
+}
+function resetGame() {
+  player = freshPlayer();
+  enemies = [ makeDummy(600), makeDummy(680), makeDummy(160) ];
+  slashParticles = [];
+  dashTrail = [];
+  shake = { t: 0, mag: 0 };
+}
+resetGame();
+
+function tryAttack() {
+  if (player.attackCd > 0 || player.dashDur > 0) return;
+  player.attackCd = 0.42;
+  player.attackDur = 0.14;
+  player.hitEnemiesThisSwing = new Set();
+}
+function tryDash() {
+  if (player.dashCd > 0) return;
+  let dir = 0;
+  if (keys['a']) dir = -1;
+  else if (keys['d']) dir = 1;
+  else dir = player.facingDir;
+  player.dashDirX = dir;
+  player.dashDur = 0.16;
+  player.dashCd = player.dashMaxCd;
+  player.invuln = 0.22;
+  player.vy = 0;
+}
+function triggerShake(mag) {
+  if (!settings.screenShake) return;
+  shake.t = 0.18;
+  shake.mag = mag;
+}
+
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min((now - last) / 1000, 0.033);
+  last = now;
+  if (gameLayer.classList.contains('active')) {
+    update(dt);
+    render();
+  }
+  requestAnimationFrame(loop);
+}
+
+function update(dt) {
+  player.facing = Math.atan2(mouse.y - (player.feetY - player.h/2), mouse.x - player.x);
+  player.facingDir = Math.cos(player.facing) >= 0 ? 1 : -1;
+
+  if (player.attackCd > 0) player.attackCd -= dt;
+  if (player.attackDur > 0) player.attackDur -= dt;
+  if (player.dashCd > 0) player.dashCd -= dt;
+  if (player.invuln > 0) player.invuln -= dt;
+  if (shake.t > 0) shake.t -= dt;
+
+  player.sliding = player.grounded && keys['s'] && player.dashDur <= 0;
+  player.targetH = player.sliding ? player.standH * 0.5 : player.standH;
+  player.h += (player.targetH - player.h) * Math.min(1, dt * 14);
+
+  if (player.dashDur > 0) {
+    player.dashDur -= dt;
+    const dashSpeed = 640;
+    player.x += player.dashDirX * dashSpeed * dt;
+    dashTrail.push({ x: player.x, feetY: player.feetY - player.h/2, life: 0.25 });
+  } else {
+    let dx = 0;
+    if (keys['a']) dx -= 1;
+    if (keys['d']) dx += 1;
+    let speed = MOVE_SPEED;
+    if (player.sliding && dx !== 0) player.slideBoost = SLIDE_BOOST;
+    if (player.slideBoost > 0) {
+      speed += player.slideBoost;
+      player.slideBoost -= player.slideBoost * Math.min(1, dt * 3.2);
+      if (player.slideBoost < 4) player.slideBoost = 0;
+    }
+    player.x += dx * speed * dt;
+
+    if (player.jumpQueued && player.grounded) {
+      player.vy = -JUMP_FORCE;
+      player.grounded = false;
+    }
+    player.jumpQueued = false;
+
+    player.vy += GRAVITY * dt;
+    player.feetY += player.vy * dt;
+    if (player.feetY >= GROUND_Y) {
+      player.feetY = GROUND_Y; player.vy = 0; player.grounded = true;
+    } else {
+      player.grounded = false;
+    }
+  }
+  player.x = Math.max(player.w, Math.min(W - player.w, player.x));
+
+  dashTrail.forEach(t => t.life -= dt);
+  dashTrail = dashTrail.filter(t => t.life > 0);
+
+  if (player.attackDur > 0.10) {
+    const range = 56;
+    const py = player.feetY - player.h/2;
+    enemies.forEach(en => {
+      if (!en.alive || player.hitEnemiesThisSwing.has(en)) return;
+      const ey = en.feetY - en.h/2;
+      const ddx = en.x - player.x, ddy = ey - py;
+      const dist = Math.hypot(ddx, ddy);
+      if (dist > range) return;
+      const angTo = Math.atan2(ddy, ddx);
+      let diff = Math.atan2(Math.sin(angTo - player.facing), Math.cos(angTo - player.facing));
+      if (Math.abs(diff) < 0.95) {
+        en.hp -= 12;
+        en.flash = 0.15;
+        en.knockX = (ddx/Math.max(1,dist)) * 260;
+        player.hitEnemiesThisSwing.add(en);
+        triggerShake(4);
+        if (en.hp <= 0) { en.alive = false; en.respawnT = 1.8; }
+      }
+    });
+    slashParticles.push({ x: player.x, y: py, a: player.facing, life: 0.14, maxLife: 0.14 });
+  }
+  slashParticles.forEach(p => p.life -= dt);
+  slashParticles = slashParticles.filter(p => p.life > 0);
+
+  enemies.forEach(en => {
+    if (!en.alive) {
+      en.respawnT -= dt;
+      if (en.respawnT <= 0) { en.alive = true; en.hp = en.maxHp; en.x = en.baseX; }
+      return;
+    }
+    if (en.flash > 0) en.flash -= dt;
+    en.knockX *= 0.86;
+    en.x += en.knockX * dt;
+    en.x = Math.max(en.w, Math.min(W - en.w, en.x));
+
+    const py = player.feetY - player.h/2;
+    const ey = en.feetY - en.h/2;
+    const pd = Math.hypot(player.x - en.x, py - ey);
+    const hitRadius = (player.w + en.w) * 0.6 * (player.h / player.standH);
+    if (pd < hitRadius && player.invuln <= 0) {
+      const dmg = 18 * dt;
+      player.hp = Math.max(0, player.hp - dmg);
+      if (Math.random() < 0.05) triggerShake(2);
+    }
+  });
+
+  document.getElementById('hpbar').style.width = (player.hp / player.maxHp * 100) + '%';
+  const dashPct = 100 - Math.max(0, player.dashCd / player.dashMaxCd * 100);
+  document.getElementById('dashbar').style.width = dashPct + '%';
+}
+
+function render() {
+  ctx.save();
+  if (shake.t > 0) {
+    const s = shake.mag * (shake.t / 0.18);
+    ctx.translate((Math.random()-0.5)*s, (Math.random()-0.5)*s);
+  }
+  ctx.clearRect(-20, -20, W+40, H+40);
+
+  ctx.strokeStyle = '#241413';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 32) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 32) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  ctx.strokeStyle = '#a11d1d';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(0, GROUND_Y); ctx.lineTo(W, GROUND_Y); ctx.stroke();
+
+  dashTrail.forEach(t => {
+    ctx.globalAlpha = Math.max(0, t.life / 0.25) * 0.5;
+    ctx.fillStyle = '#c9a24b';
+    ctx.fillRect(t.x - 8, t.feetY - 8, 16, 16);
+  });
+  ctx.globalAlpha = 1;
+
+  enemies.forEach(en => {
+    if (!en.alive) return;
+    const ey = en.feetY - en.h;
+    ctx.fillStyle = en.flash > 0 ? '#ffffff' : '#5a1414';
+    ctx.strokeStyle = '#e0342f';
+    ctx.lineWidth = 2;
+    ctx.fillRect(en.x - en.w/2, ey, en.w, en.h);
+    ctx.strokeRect(en.x - en.w/2, ey, en.w, en.h);
+    ctx.fillStyle = '#1c1414';
+    ctx.fillRect(en.x - 18, ey - 12, 36, 5);
+    ctx.fillStyle = '#e0342f';
+    ctx.fillRect(en.x - 18, ey - 12, 36 * (en.hp/en.maxHp), 5);
+  });
+
+  slashParticles.forEach(p => {
+    const t = 1 - (p.life / p.maxLife);
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.a);
+    ctx.strokeStyle = `rgba(224,52,47,${1 - t})`;
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(0, 0, 40 + t*20, -0.9, 0.9); ctx.stroke();
+    ctx.restore();
+  });
+
+  const py = player.feetY - player.h;
+  const flicker = player.invuln > 0 ? (Math.sin(performance.now()/40) > 0) : true;
+  if (flicker) {
+    ctx.fillStyle = '#e8dfd0';
+    ctx.strokeStyle = '#a11d1d';
+    ctx.lineWidth = 2;
+    ctx.fillRect(player.x - player.w/2, py, player.w, player.h);
+    ctx.strokeRect(player.x - player.w/2, py, player.w, player.h);
+    ctx.save();
+    ctx.translate(player.x, py + player.h/2);
+    ctx.rotate(player.facing);
+    ctx.fillStyle = '#e0342f';
+    ctx.fillRect(player.w/2 - 2, -3, 10, 6);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
